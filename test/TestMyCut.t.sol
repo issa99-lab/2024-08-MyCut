@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {ContestManager} from "../src/ContestManager.sol";
 import {Test, console} from "lib/forge-std/src/Test.sol";
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Mock} from "./ERC20Mock.sol";
 import {Pot} from "../src/Pot.sol";
 
@@ -48,7 +48,12 @@ contract TestMyCut is Test {
         console.log("Contest Manager Owner: ", ContestManager(conMan).owner());
         console.log("msg.sender: ", msg.sender);
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         totalContests = ContestManager(conMan).getContests();
         vm.stopPrank();
         assertEq(totalContests.length, 1);
@@ -56,7 +61,12 @@ contract TestMyCut is Test {
 
     function testCanFundPot() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
         assertEq(ERC20Mock(weth).balanceOf(contest), 4);
@@ -64,7 +74,12 @@ contract TestMyCut is Test {
 
     function testCanClaimCut() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
         // player balance before
@@ -79,7 +94,12 @@ contract TestMyCut is Test {
 
     function testCantCloseContestEarly() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.expectRevert();
         ContestManager(conMan).closeContest(contest);
@@ -88,7 +108,12 @@ contract TestMyCut is Test {
 
     function testGetRemainingRewards() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
 
@@ -102,19 +127,36 @@ contract TestMyCut is Test {
 
     function testGetTotalRewards() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
 
-        uint256 rewardsSum = ContestManager(conMan).getContestTotalRewards(contest);
+        uint256 rewardsSum = ContestManager(conMan).getContestTotalRewards(
+            contest
+        );
         assertEq(rewardsSum, 4);
     }
 
     function testCanAddMultipleContests() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(1);
         vm.stopPrank();
 
@@ -129,9 +171,19 @@ contract TestMyCut is Test {
 
     function testCanGetContests() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(1);
         vm.stopPrank();
 
@@ -141,7 +193,12 @@ contract TestMyCut is Test {
 
     function testCanCloseContest() public mintAndApproveTokens {
         vm.startPrank(user);
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), 4);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
 
@@ -163,7 +220,12 @@ contract TestMyCut is Test {
         vm.startPrank(user);
         rewards = [500, 500];
         totalRewards = 1000;
-        contest = ContestManager(conMan).createContest(players, rewards, IERC20(ERC20Mock(weth)), totalRewards);
+        contest = ContestManager(conMan).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            totalRewards
+        );
         ContestManager(conMan).fundContest(0);
         vm.stopPrank();
 
