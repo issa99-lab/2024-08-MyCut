@@ -1,75 +1,66 @@
-# Fjord Token Staking
+## Foundry
 
-### Prize Pool
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-- High - 100 XP
-- Medium - 20 XP
-- Low - 2 XP
+Foundry consists of:
 
-- Starts: August, 29 2024 Noon UTC
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-- Ends: September 05, 2024 Noon UTC
+## Documentation
 
-- nSLOC: 106
+https://book.getfoundry.sh/
 
-[//]: # (contest-details-open)
+## Usage
 
-## About the Project
+### Build
 
-MyCut is a contest rewards distribution protocol which allows the set up and management of multiple rewards distributions, allowing authorized claimants 90 days to claim before the manager takes a cut of the remaining pool and the remainder is distributed equally to those who claimed in time!
-
-### Actors
-
-- Owner/Admin (Trusted) - Is able to create new Pots, close old Pots when the claim period has elapsed and fund Pots
-- User/Player - Can claim their cut of a Pot
-
-[//]: # (contest-details-close)
-
-[//]: # (scope-open)
-
-## Scope (contracts)
-
-All Contracts in `src` are in scope.
-
-```js
-src/
-├── ContestManager.sol
-├── Pot.sol
+```shell
+$ forge build
 ```
 
-## Compatibilities
+### Test
 
-- Blockchains: EVM Equivalent Chains Only
-- Tokens: Standard ERC20 Tokens Only
-
-
-[//]: # (scope-close)
-
-[//]: # (getting-started-open)
-
-## Setup
-
-Clone the repo
-```bash
-git clone https://github.com/Cyfrin/2024-08-MyCut.git
-```
-Open in VSCode
-```bash
-code 2024-08-MyCut/
+```shell
+$ forge test
 ```
 
-Build and run tests
-```bash
-forge test
+### Format
+
+```shell
+$ forge fmt
 ```
 
+### Gas Snapshots
 
-[//]: # (getting-started-close)
+```shell
+$ forge snapshot
+```
 
-[//]: # (known-issues-open)
+### Anvil
 
-## Known Issues
+```shell
+$ anvil
+```
 
-- No known issues
+### Deploy
 
-[//]: # (known-issues-close)
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+
+### Cast
+
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
+```

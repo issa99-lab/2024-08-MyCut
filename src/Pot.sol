@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Ownable} from "node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 contract Pot is Ownable(msg.sender) {
     error Pot__RewardNotFound();
@@ -19,7 +19,12 @@ contract Pot is Ownable(msg.sender) {
     uint256 private remainingRewards;
     uint256 private constant managerCutPercent = 10;
 
-    constructor(address[] memory players, uint256[] memory rewards, IERC20 token, uint256 totalRewards) {
+    constructor(
+        address[] memory players,
+        uint256[] memory rewards,
+        IERC20 token,
+        uint256 totalRewards
+    ) {
         i_players = players;
         i_rewards = rewards;
         i_token = token;
@@ -54,7 +59,8 @@ contract Pot is Ownable(msg.sender) {
             uint256 managerCut = remainingRewards / managerCutPercent;
             i_token.transfer(msg.sender, managerCut);
 
-            uint256 claimantCut = (remainingRewards - managerCut) / i_players.length;
+            uint256 claimantCut = (remainingRewards - managerCut) /
+                i_players.length;
             for (uint256 i = 0; i < claimants.length; i++) {
                 _transferReward(claimants[i], claimantCut);
             }
