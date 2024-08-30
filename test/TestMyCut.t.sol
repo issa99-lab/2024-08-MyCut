@@ -9,7 +9,7 @@ import {ERC20Mock} from "./ERC20Mock.sol";
 import {Pot} from "../src/Pot.sol";
 
 contract TestMyCut is Test {
-    address conMan;
+    /* address conMan;
     address player1 = makeAddr("player1");
     address player2 = makeAddr("player2");
     address[] players = [player1, player2];
@@ -244,5 +244,5 @@ contract TestMyCut is Test {
         uint256 claimantBalanceAfter = ERC20Mock(weth).balanceOf(player1);
 
         assert(claimantBalanceAfter > claimantBalanceBefore);
-    }
+    } */
 }

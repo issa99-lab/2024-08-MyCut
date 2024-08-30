@@ -90,4 +90,12 @@ contract Pot is Ownable(msg.sender) {
     function getRemainingRewards() public view returns (uint256) {
         return remainingRewards;
     }
+
+    function getOwner() public view returns (address) {
+        return Ownable.owner();
+    }
+
+    receive() external payable {
+        // emit Received(msg.sender, msg.value);
+    }
 }

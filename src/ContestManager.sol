@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Pot} from "./Pot.sol";
 import {Ownable} from "node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20, IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ContestManager is Ownable {
     address[] public contests;
@@ -29,8 +29,9 @@ contract ContestManager is Ownable {
 
     function fundContest(uint256 index) public onlyOwner {
         //+? require(index < contests.length, "Index out of bounds");
+        address payable contestAddress = payable(contests[index]); // ++Convert to payable address
 
-        Pot pot = Pot(contests[index]);
+        Pot pot = Pot(contestAddress);
         IERC20 token = pot.getToken();
         uint256 totalRewards = contestToTotalRewards[address(pot)];
 
@@ -54,7 +55,7 @@ contract ContestManager is Ownable {
     function getContestRemainingRewards(
         address contest
     ) public view returns (uint256) {
-        Pot pot = Pot(contest);
+        Pot pot = Pot(payable(contest));
         return pot.getRemainingRewards();
     }
 
@@ -63,7 +64,7 @@ contract ContestManager is Ownable {
     }
 
     function _closeContest(address contest) internal {
-        Pot pot = Pot(contest);
+        Pot pot = Pot(payable(contest));
         pot.closePot();
     }
 }

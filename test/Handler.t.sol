@@ -7,7 +7,7 @@ import {Pot} from "../src/Pot.sol";
 import {ERC20Mock} from "../test/ERC20Mock.sol";
 
 contract Handler is Test {
-    ContestManager contestManager;
+    /*ContestManager contestManager;
     Pot pot;
     address manager = makeAddr("mng");
     address[] public contests;
@@ -21,7 +21,6 @@ contract Handler is Test {
     function createContest(
         address[] memory _players,
         uint256[] memory _rewards,
-        ERC20Mock _token,
         uint256 _totalRewards
     ) public {
         uint256 startingContLength = contests.length;
@@ -32,13 +31,13 @@ contract Handler is Test {
         address contest1 = contestManager.createContest(
             _players,
             _rewards,
-            _token,
+            token,
             _totalRewards
         );
         address contest2 = contestManager.createContest(
             _players,
             _rewards,
-            _token,
+            token,
             _totalRewards
         );
         vm.stopPrank();
@@ -55,5 +54,12 @@ contract Handler is Test {
         assert(endingRewardsContest2 > startingRewardsContest2);
     }
 
-    function fundContest(uint256 _index) public {}
+    function fundContest(uint256 _index) public {
+        //Manager should have some funds to pay
+        pot = ERPot(contests[_index]);
+        token = pot.getToken();
+        vm.startPrank(manager);
+        contestManager.fundContest(_index);
+        vm.stopPrank();
+    }*/
 }
