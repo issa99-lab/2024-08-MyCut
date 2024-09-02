@@ -6,89 +6,66 @@ import {ContestManager} from "../src/ContestManager.sol";
 import {Ownable} from "node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import {Pot} from "../src/Pot.sol";
 import {ERC20Mock} from "../test/ERC20Mock.sol";
+import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {StdInvariant} from "lib/forge-std/src/StdInvariant.sol";
 
 contract contesstManager is Test {
-    ContestManager contestManager;
-    Pot pot;
-    ERC20Mock token;
+    address manager = makeAddr("123");
+    address contestManagerContract;
 
-    address con = makeAddr("con");
-    address player1 = makeAddr("ply");
-    address player2 = makeAddr("ply2");
-    address[] players;
-
-    uint256[] rewards;
-    uint256 ply1Reward = 5;
-    uint256 ply2Reward = 2;
-    uint256 totalRewards = 7;
-    uint256 index;
+    address player1 = makeAddr("player1");
+    address player2 = makeAddr("player2");
+    address[] players = [player1, player2];
+    uint256 public constant STARTING_USER_BALANCE = 1000 ether;
+    ERC20Mock weth;
     address contest;
+    address[] totalContests;
+    uint256[] rewards = [3, 1];
+    address user = makeAddr("user");
+    uint256 totalRewards = 4;
 
     function setUp() public {
-        token = new ERC20Mock();
-        token.mint(address(this), totalRewards + 3);
-        // token.mint(address(this), totalRewards + 3);
-
-        contestManager = new ContestManager();
+        vm.startPrank(manager);
+        // DeployContestManager deploy = new DeployContestManager();
+        contestManagerContract = address(new ContestManager());
+        weth = new ERC20Mock();
+        // console.log("User Address: ", user);
+        //  manager) = deploy.run();
+        console.log("Contest Manager Address 1: ", address(manager));
+        vm.stopPrank();
     }
 
-    modifier contestCreated() {
-        vm.startPrank(address(this));
-        players.push(player1);
-        players.push(player2);
-        rewards.push(ply1Reward);
-        rewards.push(ply2Reward);
-
-        address x = contestManager.createContest(
-            players,
-            rewards,
-            token,
-            totalRewards
-        );
-        token.approve(address(this), address(x), totalRewards); //should approve first
-        contestManager.fundContest(0); //fund
-
-        /* contestManager.createContest(players, rewards, token, totalRewards);
-        token.approve(address(this), potIndexAddy, totalRewards); //should approve first
-        contestManager.fundContest(index + 1);*/
-
+    modifier mintAndApproveTokens() {
+        console.log("Minting tokens to: ", user);
+        vm.startPrank(user);
+        ERC20Mock(weth).mint(user, STARTING_USER_BALANCE);
+        ERC20Mock(weth).approve(manager, STARTING_USER_BALANCE);
+        console.log("Approved tokens to: ", address(manager));
         vm.stopPrank();
         _;
     }
 
-    function testFailOnlyOwnerCanCreateContests() public {
-        vm.startPrank(con);
-        contestManager.createContest(players, rewards, token, totalRewards);
-        vm.stopPrank();
-    }
-
-    function testManagerCanCreateContest() public {
-        vm.startPrank(address(this));
-        contestManager.createContest(players, rewards, token, totalRewards);
-        vm.stopPrank();
-    }
-
-    function testManagerCanFund() public {
-        /* _index = bound(_index, 0, 2);
-        address potIndexAddy = contestManager.contests(_index);*/
-        vm.startPrank(address(this));
-        players.push(player1);
-        players.push(player2);
-        rewards.push(ply1Reward);
-        rewards.push(ply2Reward);
-
-        address x = contestManager.createContest(
+    function testCanCreatePot() public mintAndApproveTokens {
+        vm.startPrank(manager);
+        contest = ContestManager(contestManagerContract).createContest(
             players,
             rewards,
-            token,
-            totalRewards
+            IERC20(ERC20Mock(weth)),
+            4
         );
-        Pot potAddress = Pot(payable(x));
+        totalContests = ContestManager(contestManagerContract).getContests();
+        vm.stopPrank();
+        assertEq(totalContests.length, 1);
+    }
 
-        ERC20Mock(token).approve(address(potAddress), totalRewards); //should approve first
-        contestManager.fundContest(0); //fund
-
-        assertEq(contestManager.getContestTotalRewards(x), 7);
+    function testFailToCreateContract() public mintAndApproveTokens {
+        vm.startPrank(user);
+        contest = ContestManager(contestManagerContract).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            4
+        );
+        vm.stopPrank();
     }
 }

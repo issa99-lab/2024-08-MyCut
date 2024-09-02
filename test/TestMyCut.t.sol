@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.20;
-
+/*
 import {ContestManager} from "../src/ContestManager.sol";
 import {Test, console} from "lib/forge-std/src/Test.sol";
 import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -9,7 +9,7 @@ import {ERC20Mock} from "./ERC20Mock.sol";
 import {Pot} from "../src/Pot.sol";
 
 contract TestMyCut is Test {
-    /* address conMan;
+    address conMan;
     address player1 = makeAddr("player1");
     address player2 = makeAddr("player2");
     address[] players = [player1, player2];
@@ -244,5 +244,5 @@ contract TestMyCut is Test {
         uint256 claimantBalanceAfter = ERC20Mock(weth).balanceOf(player1);
 
         assert(claimantBalanceAfter > claimantBalanceBefore);
-    } */
-}
+    }
+}*/
