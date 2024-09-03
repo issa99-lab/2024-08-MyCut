@@ -17,4 +17,8 @@ contract ERC20Mock is ERC20 {
     function approve(address owner, address spender, uint256 value) external {
         _approve(owner, spender, value, true);
     }
+
+    function balance(address account) external view returns (uint256) {
+        return balanceOf(account);
+    }
 }

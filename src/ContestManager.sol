@@ -9,11 +9,11 @@ contract ContestManager is Ownable {
     address[] public contests;
     mapping(address => uint256) public contestToTotalRewards;
 
+    //uint256 balance;
     error ContestManager__InsufficientFunds();
 
     constructor() Ownable(msg.sender) {}
 
-    /*@audit check if others can also create contest */
     function createContest(
         address[] memory players,
         uint256[] memory rewards,
@@ -28,12 +28,11 @@ contract ContestManager is Ownable {
     }
 
     function fundContest(uint256 index) public onlyOwner {
-        //+? require(index < contests.length, "Index out of bounds");
-        address payable contestAddress = payable(contests[index]); // ++Convert to payable address
-
-        Pot pot = Pot(contestAddress);
+        Pot pot = Pot(contests[index]);
         IERC20 token = pot.getToken();
         uint256 totalRewards = contestToTotalRewards[address(pot)];
+
+        // balance = token.balanceOf(msg.sender);
 
         if (token.balanceOf(msg.sender) < totalRewards) {
             revert ContestManager__InsufficientFunds();
@@ -55,7 +54,7 @@ contract ContestManager is Ownable {
     function getContestRemainingRewards(
         address contest
     ) public view returns (uint256) {
-        Pot pot = Pot(payable(contest));
+        Pot pot = Pot(contest);
         return pot.getRemainingRewards();
     }
 
@@ -64,7 +63,7 @@ contract ContestManager is Ownable {
     }
 
     function _closeContest(address contest) internal {
-        Pot pot = Pot(payable(contest));
+        Pot pot = Pot(contest);
         pot.closePot();
     }
 }

@@ -9,15 +9,15 @@ contract Pot is Ownable(msg.sender) {
     error Pot__InsufficientFunds();
     error Pot__StillOpenForClaim();
 
-    address[] private i_players; //people
-    uint256[] private i_rewards; //number
-    address[] private claimants; //people that are eligible for rewards 90 days tops
-    uint256 private immutable i_totalRewards; //no of rewards
-    uint256 private immutable i_deployedAt; // time deployed
+    address[] private i_players;
+    uint256[] private i_rewards;
+    address[] private claimants;
+    uint256 private immutable i_totalRewards;
+    uint256 private immutable i_deployedAt;
     IERC20 private immutable i_token;
-    mapping(address => uint256) private playersToRewards; //players to no of rewards?
-    uint256 private remainingRewards; //after the time has elapsed?
-    uint256 private constant managerCutPercent = 10; //remainder (90%) distributed to claimants. can non-claimants ask for rewards?
+    mapping(address => uint256) private playersToRewards;
+    uint256 private remainingRewards;
+    uint256 private constant managerCutPercent = 10;
 
     constructor(
         address[] memory players,
@@ -33,16 +33,12 @@ contract Pot is Ownable(msg.sender) {
         i_deployedAt = block.timestamp;
 
         // i_token.transfer(address(this), i_totalRewards);
-        //i_players.length can be a number outside to save on gas
+
         for (uint256 i = 0; i < i_players.length; i++) {
             playersToRewards[i_players[i]] = i_rewards[i];
         }
     }
 
-    /*@audit anyone can call the function? Yes 
-    They wont receive anything since they got nothing (checks)
-
-     */
     function claimCut() public {
         address player = msg.sender;
         uint256 reward = playersToRewards[player];
@@ -55,23 +51,19 @@ contract Pot is Ownable(msg.sender) {
         _transferReward(player, reward);
     }
 
-    /*@audit manager gets wrong rewards calculation, not 10%*/
     function closePot() external onlyOwner {
         if (block.timestamp - i_deployedAt < 90 days) {
             revert Pot__StillOpenForClaim();
         }
         if (remainingRewards > 0) {
             uint256 managerCut = remainingRewards / managerCutPercent;
-            /*@ audit uint256 managerCut = (remainingRewards * managerCutPercent) / 100;
-             */
             i_token.transfer(msg.sender, managerCut);
 
             uint256 claimantCut = (remainingRewards - managerCut) /
                 i_players.length;
             for (uint256 i = 0; i < claimants.length; i++) {
-                _transferReward(claimants[i], claimantCut); //what if 1 of the claimant's fallback's reverts? it'll always revert
+                _transferReward(claimants[i], claimantCut);
             }
-            //not updated the remaining rewards to 0 bc ishaisha after distributing
         }
     }
 
@@ -89,13 +81,5 @@ contract Pot is Ownable(msg.sender) {
 
     function getRemainingRewards() public view returns (uint256) {
         return remainingRewards;
-    }
-
-    function getOwner() public view returns (address) {
-        return Ownable.owner();
-    }
-
-    receive() external payable {
-        // emit Received(msg.sender, msg.value);
     }
 }
