@@ -51,7 +51,7 @@ contract Pot is Ownable(msg.sender) {
         _transferReward(player, reward);
     }
 
-    function closePot() external onlyOwner {
+    /*  function closePot() external onlyOwner {
         if (block.timestamp - i_deployedAt < 90 days) {
             revert Pot__StillOpenForClaim();
         }
@@ -64,6 +64,40 @@ contract Pot is Ownable(msg.sender) {
             for (uint256 i = 0; i < claimants.length; i++) {
                 _transferReward(claimants[i], claimantCut);
             }
+        }
+    }*/
+    //+++++
+    function closePot() external onlyOwner {
+        // Ensure that the function can only be called after the 90-day period has elapsed
+        if (block.timestamp - i_deployedAt < 90 days) {
+            revert Pot__StillOpenForClaim();
+        }
+
+        // Check if there are any remaining rewards to distribute
+        if (remainingRewards > 0) {
+            // ++++  Calculate the manager's cut (10% of remaining rewards)
+            uint256 managerCut = (remainingRewards * 10) / 100;
+
+            // Transfer the manager's cut to the manager (msg.sender)
+            i_token.transfer(msg.sender, managerCut);
+
+            // Calculate the amount to be distributed among the claimants
+            uint256 remainingAfterManagerCut = remainingRewards - managerCut;
+
+            // Ensure there are claimants before attempting to distribute rewards
+            if (claimants.length > 0) {
+                //++++  Calculate the amount each claimant should receive
+                uint256 claimantCut = remainingAfterManagerCut /
+                    claimants.length;
+
+                // Distribute the claimant's share to each claimant
+                for (uint256 i = 0; i < claimants.length; i++) {
+                    _transferReward(claimants[i], claimantCut);
+                }
+            }
+
+            // After distribution, update the remaining rewards to 0
+            remainingRewards = 0;
         }
     }
 

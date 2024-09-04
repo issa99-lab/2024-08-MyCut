@@ -189,7 +189,7 @@ contract contesstManager is Test {
         vm.stopPrank();
     }
 
-    /* function testManagerCanCloseContest() public {
+    function testManagerCanCloseContest() public {
         vm.startPrank(manager);
         contest = ContestManager(contestManagerContract).createContest(
             players,
@@ -214,13 +214,15 @@ contract contesstManager is Test {
             .getContests();
         uint256 length = contests1.length;
         assertEq(length, 1);
-        uint256 length2 = contests1.length;
 
         vm.warp(block.timestamp + 91 days);
         vm.startPrank(manager);
         ContestManager(contestManagerContract).closeContest(contest);
         ContestManager(contestManagerContract).closeContest(contest);
         vm.stopPrank();
-        assertEq(length2, 1);
-    }*/
+        address[] memory contests2 = ContestManager(contestManagerContract)
+            .getContests();
+        uint256 length2 = contests2.length;
+        assertEq(length2, 0);
+    }
 }

@@ -58,8 +58,26 @@ contract ContestManager is Ownable {
         return pot.getRemainingRewards();
     }
 
+    //+++
     function closeContest(address contest) public onlyOwner {
         _closeContest(contest);
+        removeAddress(contest);
+    }
+
+    //+++
+    function removeAddress(address toRemove) internal {
+        uint256 length = contests.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (contests[i] == toRemove) {
+                // Move the last element into the place to delete
+                contests[i] = contests[length - 1];
+                // Remove the last element
+                contests.pop();
+                return;
+            }
+        }
+        // If the address is not found, you may want to handle this case.
+        // E.g., revert with an error or do nothing.
     }
 
     function _closeContest(address contest) internal {
