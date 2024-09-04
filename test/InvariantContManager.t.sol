@@ -15,14 +15,17 @@ contract contesstManager is Test {
 
     address player1 = makeAddr("player1");
     address player2 = makeAddr("player2");
-    address[] players = [player1, player2];
-    uint256 public constant STARTING_USER_BALANCE = 10e18;
+    address player3 = makeAddr("player3");
+    address hacker = makeAddr("hacker");
+    address[] players = [player1, player2, player3];
+    uint256 public constant STARTING_USER_BALANCE = 100e18;
     ERC20Mock weth;
     address contest;
     address[] totalContests;
-    uint256[] rewards = [3, 1];
+    uint256[] rewards = [60, 20, 20];
     address user = makeAddr("user");
-    uint256 totalRewards = 4e18;
+
+    uint256 totalRewards = 100;
 
     function setUp() public {
         vm.startPrank(manager);
@@ -86,7 +89,7 @@ contract contesstManager is Test {
         ERC20Mock(weth).approve(contestManagerContract, totalRewards);
         ContestManager(contestManagerContract).fundContest(0);
 
-        assertEq(ERC20Mock(weth).balanceOf(contest), 4);
+        assertEq(ERC20Mock(weth).balanceOf(contest), 100);
     }
 
     function testMoneyExitsManagersAccount() public {
@@ -104,7 +107,7 @@ contract contesstManager is Test {
         uint256 endingBal = ERC20Mock(weth).balance(manager);
         console.log(endingBal);
         assert(endingBal < startingBal);
-        assertEq(endingBal, 6e18);
+        assertEq(endingBal, startingBal - 100);
     }
 
     function testContests() public {
@@ -124,10 +127,100 @@ contract contesstManager is Test {
             totalRewards
         );
         ERC20Mock(weth).approve(contestManagerContract, totalRewards);
-        ContestManager(contestManagerContract).fundContest(0);
+        ContestManager(contestManagerContract).fundContest(1);
         address[] memory contests1 = ContestManager(contestManagerContract)
             .getContests();
         uint256 length = contests1.length;
         assertEq(length, 2);
     }
+
+    function testClaim() public {
+        vm.startPrank(manager);
+        contest = ContestManager(contestManagerContract).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            totalRewards
+        );
+        ERC20Mock(weth).approve(contestManagerContract, totalRewards);
+        ContestManager(contestManagerContract).fundContest(0);
+        vm.stopPrank();
+        vm.startPrank(player1);
+        Pot(contest).claimCut();
+        vm.stopPrank();
+        vm.startPrank(player2);
+        Pot(contest).claimCut();
+        vm.stopPrank();
+        assertEq(Pot(contest).getRemainingRewards(), totalRewards - 80);
+
+        console.log(Pot(contest).getRemainingRewards());
+    }
+
+    function testCheckCut() public {
+        vm.startPrank(manager);
+        contest = ContestManager(contestManagerContract).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            totalRewards
+        );
+        ERC20Mock(weth).approve(contestManagerContract, totalRewards);
+        ContestManager(contestManagerContract).fundContest(0);
+        vm.stopPrank();
+        vm.startPrank(hacker);
+        uint256 cut = Pot(contest).checkCut(player1);
+        vm.stopPrank();
+        assertEq(cut, rewards[0]);
+    }
+
+    function testFailHackerClaim() public {
+        vm.startPrank(manager);
+        contest = ContestManager(contestManagerContract).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            totalRewards
+        );
+        ERC20Mock(weth).approve(contestManagerContract, totalRewards);
+        ContestManager(contestManagerContract).fundContest(0);
+        vm.stopPrank();
+        vm.startPrank(manager);
+        Pot(contest).claimCut();
+        vm.stopPrank();
+    }
+
+    /* function testManagerCanCloseContest() public {
+        vm.startPrank(manager);
+        contest = ContestManager(contestManagerContract).createContest(
+            players,
+            rewards,
+            IERC20(ERC20Mock(weth)),
+            totalRewards
+        );
+        ERC20Mock(weth).approve(contestManagerContract, totalRewards);
+        ContestManager(contestManagerContract).fundContest(0);
+        // address x = Pot(contest);
+        console.log(ERC20Mock(weth).balanceOf(contest));
+
+        vm.stopPrank();
+        vm.startPrank(player1);
+        Pot(contest).claimCut();
+        vm.stopPrank();
+        vm.startPrank(player2);
+        Pot(contest).claimCut();
+        vm.stopPrank();
+
+        address[] memory contests1 = ContestManager(contestManagerContract)
+            .getContests();
+        uint256 length = contests1.length;
+        assertEq(length, 1);
+        uint256 length2 = contests1.length;
+
+        vm.warp(block.timestamp + 91 days);
+        vm.startPrank(manager);
+        ContestManager(contestManagerContract).closeContest(contest);
+        ContestManager(contestManagerContract).closeContest(contest);
+        vm.stopPrank();
+        assertEq(length2, 1);
+    }*/
 }
